@@ -23,6 +23,11 @@ func main() {
 		d.Run()
 	}()
 
+	go func() {
+		c := NewCollector()
+		c.Run()
+	}()
+
 	// Router
 	go func() {
 		r := NewRouter()
