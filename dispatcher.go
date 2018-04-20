@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/epointpayment/customerprofilingengine-demo/models/faker"
+
 	nats "github.com/nats-io/go-nats"
 )
 
@@ -34,33 +35,48 @@ func NewDispatcher() *Dispatcher {
 }
 
 func (d *Dispatcher) Run() {
+	done := make(chan bool)
+
 	d.nc, _ = nats.Connect(nats.DefaultURL)
 	d.c, _ = nats.NewEncodedConn(d.nc, nats.JSON_ENCODER)
 	defer d.nc.Close()
 
-	subject := "collector"
+	currentDate := d.StartTime
 
-	start := 0
-	limit := 100
 	for {
-		customers := d.makeRequest(start, limit)
+		start := 0
+		limit := d.BatchSize
 
-		count := len(customers)
-		if count == 0 {
+		for {
+			customers := d.getCustomersList(start, limit)
+
+			count := len(customers)
+			if count == 0 {
+				break
+			}
+
+			for i := 0; i < count; i++ {
+				customer := customers[i]
+
+				customer.Date = currentDate
+
+				d.c.Publish("collector", customer)
+				log.Println("Dispatching: Customer " + strconv.FormatUint(customers[i].ID, 10))
+			}
+
+			start = start + limit
+		}
+
+		currentDate = currentDate.AddDate(0, 0, 1)
+		if currentDate.After(d.StopTime) {
 			break
 		}
-
-		for i := 0; i < count; i++ {
-			customer := customers[i]
-			d.c.Publish(subject, customer)
-			log.Println("Dispatching: Customer " + strconv.FormatUint(customers[i].ID, 10))
-		}
-
-		start = start + limit
 	}
+
+	<-done
 }
 
-func (d *Dispatcher) makeRequest(start, limit int) []faker.Customer {
+func (d *Dispatcher) getCustomersList(start, limit int) []faker.Customer {
 	var customers []faker.Customer
 
 	// Make a get request
