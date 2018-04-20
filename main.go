@@ -2,11 +2,14 @@ package main
 
 import (
 	"flag"
+	"runtime"
 )
 
-var doSeed bool
+var apiURL string
 
 func init() {
+	flag.StringVar(&apiURL, "api-url", "http://localhost:8080", "faker api url")
+
 	flag.Parse()
 }
 
@@ -15,7 +18,17 @@ func main() {
 	db = NewDB("cpe.db")
 	defer db.Close()
 
+	go func() {
+		d := NewDispatcher()
+		d.Run()
+	}()
+
 	// Router
-	r := NewRouter()
-	r.Run()
+	go func() {
+		r := NewRouter()
+		r.Run()
+	}()
+
+	// Keep the connection alive
+	runtime.Goexit()
 }
