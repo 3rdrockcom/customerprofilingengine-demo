@@ -1,2 +1,7 @@
 # OS
 .directory
+
+# Application
+/cpe
+/cpe.db
+/gin-bin
