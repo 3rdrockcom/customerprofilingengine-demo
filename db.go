@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/epointpayment/customerprofilingengine-demo/models"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
@@ -14,4 +16,16 @@ func NewDB(dbName string) *gorm.DB {
 	}
 
 	return db
+}
+
+func DoMigrations(doDropTables bool) {
+	// Drop tables
+	if doDropTables {
+		db.DropTableIfExists(&models.Customers{})
+		db.DropTableIfExists(&models.Transactions{})
+	}
+
+	// Create schema
+	db.AutoMigrate(&models.Customers{})
+	db.AutoMigrate(&models.Transactions{})
 }
