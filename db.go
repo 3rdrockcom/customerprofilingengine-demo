@@ -23,9 +23,11 @@ func DoMigrations(doDropTables bool) {
 	if doDropTables {
 		db.DropTableIfExists(&models.Customers{})
 		db.DropTableIfExists(&models.Transactions{})
+		db.DropTableIfExists(&models.Analyzer{})
 	}
 
 	// Create schema
 	db.AutoMigrate(&models.Customers{})
 	db.AutoMigrate(&models.Transactions{})
+	db.AutoMigrate(&models.Analyzer{})
 }

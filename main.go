@@ -38,6 +38,11 @@ func main() {
 		r.Run()
 	}()
 
+	go func() {
+		a := NewAnalyzer()
+		a.Run()
+	}()
+
 	// Router
 	go func() {
 		r := NewRouter()

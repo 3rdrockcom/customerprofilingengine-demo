@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/epointpayment/customerprofilingengine-demo/models/faker"
-
 	"github.com/epointpayment/customerprofilingengine-demo/models"
+	"github.com/epointpayment/customerprofilingengine-demo/models/faker"
 
 	nats "github.com/nats-io/go-nats"
 )
@@ -75,6 +74,8 @@ func (r *Recorder) Run() {
 		if err := tx.Commit().Error; err != nil {
 			panic(err)
 		}
+
+		r.c.Publish("analyzer", payload)
 	})
 
 	<-done
