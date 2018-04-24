@@ -42,6 +42,7 @@ func (c *Collector) Run() {
 		payload := &faker.Payload{
 			Info:         customerInfo,
 			Transactions: customerTransactions,
+			Date:         customer.Date,
 		}
 
 		c.c.Publish("recorder", payload)
