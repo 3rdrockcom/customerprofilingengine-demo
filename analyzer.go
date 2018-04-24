@@ -53,12 +53,23 @@ func (a *Analyzer) Run() {
 		for i := range transactions {
 			analyzer.SumCredits += transactions[i].Credit
 			if transactions[i].Credit != 0 {
-				analyzer.NumTransactions++
+				analyzer.NumCredits++
 			}
+
+			analyzer.SumDebits += transactions[i].Debit
+			if transactions[i].Debit != 0 {
+				analyzer.NumDebits++
+			}
+
+			analyzer.NumTransactions++
 		}
 
-		if analyzer.NumTransactions > 0 {
-			analyzer.AvgCredits = analyzer.SumCredits / float64(analyzer.NumTransactions)
+		if analyzer.NumCredits > 0 {
+			analyzer.AvgCredits = analyzer.SumCredits / float64(analyzer.NumCredits)
+		}
+
+		if analyzer.NumDebits > 0 {
+			analyzer.AvgDebits = analyzer.SumDebits / float64(analyzer.NumDebits)
 		}
 
 		db.Create(analyzer)
